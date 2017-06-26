@@ -24,20 +24,20 @@ defmodule Airbrakex.Notifier do
   end
 
   defp add_notifier(payload) do
-    payload |> Dict.put(:notifier, @info)
+    payload |> Map.put(:notifier, @info)
   end
 
   defp add_error(payload, nil), do: payload
   defp add_error(payload, error) do
-    payload |> Dict.put(:errors, [error])
+    payload |> Map.put(:errors, [error])
   end
 
   defp add_context(payload, nil) do
-    payload |> Dict.put(:context, %{} |> context_with_defaults)
+    payload |> Map.put(:context, %{} |> context_with_defaults)
   end
 
   defp add_context(payload, context) do
-    payload |> Dict.put(:context, context |> context_with_defaults)
+    payload |> Map.put(:context, context |> context_with_defaults)
   end
 
   defp context_with_defaults(context) do
@@ -48,14 +48,14 @@ defmodule Airbrakex.Notifier do
 
   defp add_if_missing(map, key, val) do
     if !map[key] do
-      map |> Dict.put(key, val)
+      map |> Map.put(key, val)
     else
       map
     end
   end
 
   defp add(payload, _key, nil), do: payload
-  defp add(payload, key, value), do: Dict.put(payload, key, value)
+  defp add(payload, key, value), do: Map.put(payload, key, value)
 
   defp url(options) do
     project_id = Keyword.get(options, :project_id) || Application.get_env(:airbrakex, :project_id)

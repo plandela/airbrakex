@@ -7,8 +7,8 @@ defmodule Airbrakex.Mixfile do
       version: "0.0.6",
       elixir: "~> 1.0",
       description: "Airbrake Elixir Notifier",
-      package: package,
-      deps: deps
+      package: package(),
+      deps: deps()
    ]
   end
 

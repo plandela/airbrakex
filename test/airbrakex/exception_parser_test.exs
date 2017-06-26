@@ -11,10 +11,10 @@ defmodule Airbrakex.ExceptionParserTest do
 
     result = %{
       backtrace: [
-        %{file: "(IO) lib/io.ex", function: "inspect(\"test\", [], \"\")", line: 258},
+        %{file: "(IO) lib/io.ex", function: "inspect(\"test\", [], \"\")", line: 290},
         %{file: "(Airbrakex.ExceptionParserTest) test/airbrakex/exception_parser_test.exs", function: "test should parse exception/1", line: 7},
-        %{file: "(ExUnit.Runner) lib/ex_unit/runner.ex", function: "exec_test/1", line: 296}, %{file: "(timer) timer.erl", function: "tc/1", line: 166},
-        %{file: "(ExUnit.Runner) lib/ex_unit/runner.ex", function: "-spawn_test/3-fun-1-/3", line: 246}
+        %{file: "(ExUnit.Runner) lib/ex_unit/runner.ex", function: "exec_test/1", line: 302}, %{file: "(timer) timer.erl", function: "tc/1", line: 166},
+        %{file: "(ExUnit.Runner) lib/ex_unit/runner.ex", function: "-spawn_test/3-fun-1-/3", line: 250}
       ],
       message: "no function clause matching in IO.inspect/3",
       type: "FunctionClauseError"
