@@ -43,9 +43,28 @@ defmodule Airbrakex.Plug do
     %{
       context: context,
       session: conn.private.plug_session,
-      params: conn.params,
+      params: conn.params |> filter_params,
       environment: build_environment(conn)}
   end
+
+  defp filter_params(params) do
+    params |> do_filter_params
+  end
+
+  @filter_parameters ~w(password)
+
+  def do_filter_params(%{__struct__: mod} = struct) when is_atom(mod), do: struct
+  def do_filter_params(%{} = map) do
+    Enum.into map, %{}, fn {k, v} ->
+      if is_binary(k) && String.contains?(k, @filter_parameters) do
+        {k, "[FILTERED]"}
+      else
+        {k, do_filter_params(v)}
+      end
+    end
+  end
+  def do_filter_params([_|_] = list), do: Enum.map(list, &do_filter_params(&1))
+  def do_filter_params(other), do: other
 
   defp build_context(%Plug.Conn{} = conn) do
     {:ok, hostname} =  :inet.gethostname
