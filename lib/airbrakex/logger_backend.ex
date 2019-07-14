@@ -1,5 +1,5 @@
 defmodule Airbrakex.LoggerBackend do
-  use GenEvent
+  @behaviour :gen_event
 
   def init(__MODULE__) do
     {:ok, configure([])}
@@ -17,7 +17,24 @@ defmodule Airbrakex.LoggerBackend do
     if proceed?(event) and meet_level?(level, state.level) do
       post_event(event, keys)
     end
+
     {:ok, state}
+  end
+
+  def handle_event(:flush, state) do
+    {:ok, state}
+  end
+
+  def handle_info(_message, state) do
+    {:ok, state}
+  end
+
+  def code_change(_old_vsn, state, _extra) do
+    {:ok, state}
+  end
+
+  def terminate(_reason, _state) do
+    :ok
   end
 
   defp proceed?({Logger, _msg, _ts, meta}) do
@@ -36,13 +53,15 @@ defmodule Airbrakex.LoggerBackend do
   end
 
   defp build_metadata(error) do
-    {:ok, hostname} =  :inet.gethostname
+    {:ok, hostname} = :inet.gethostname()
+
     context = %{
       component: get_component(error),
       hostname: hostname |> to_string,
       version: Application.get_env(:airbrakex, :version),
-      rootDirectory: Application.app_dir(Application.get_env(:airbrakex, :app_name)),
+      rootDirectory: Application.app_dir(Application.get_env(:airbrakex, :app_name))
     }
+
     %{
       context: context
     }
@@ -52,12 +71,15 @@ defmodule Airbrakex.LoggerBackend do
     case backtrace do
       [%{"function" => function} | _t] ->
         function
+
       [h | _t] ->
         h |> to_string
+
       _ ->
         "unknown"
     end
   end
+
   defp get_component(_) do
     "unknown"
   end

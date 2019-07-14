@@ -41,7 +41,7 @@ defmodule Airbrakex.ExceptionParser do
           function: "#{function}#{args(args)}"
         }
 
-      {module, function, args, [file: file]} ->
+      {_module, function, args, [file: file]} ->
         %{
           file: List.to_string(file),
           line: 0,
