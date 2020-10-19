@@ -21,7 +21,10 @@ defmodule Airbrakex.Notifier do
       |> add(:environment, Keyword.get(options, :environment, %{}))
       |> Jason.encode!()
 
-    post(url(options), payload, @request_headers)
+    case post(url(options), payload, @request_headers) do
+      {:ok, _} = res -> res
+      {:error, error} -> IO.inspect(error)
+    end
   end
 
   defp add_notifier(payload) do
