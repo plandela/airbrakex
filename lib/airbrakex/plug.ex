@@ -1,5 +1,4 @@
 defmodule Airbrakex.Plug do
-
   defmacro __using__(_env) do
     quote do
       import Airbrakex.Plug
@@ -19,6 +18,7 @@ defmodule Airbrakex.Plug do
 
       defp handle_errors(conn, %{kind: kind, reason: reason, stack: stack}) do
         meta = build_metadata(conn)
+
         Airbrakex.ExceptionParser.parse(kind, reason, stack)
         |> Airbrakex.Notifier.notify(Map.to_list(meta))
       end
@@ -26,17 +26,19 @@ defmodule Airbrakex.Plug do
   end
 
   def build_metadata(%Plug.Conn{} = conn) do
-    conn = try do
-      Plug.Conn.fetch_session(conn)
-    rescue
-      _e in [ArgumentError, KeyError] ->
-        # just return conn and move on
-        conn
-    end
+    conn =
+      try do
+        Plug.Conn.fetch_session(conn)
+      rescue
+        _e in [ArgumentError, KeyError] ->
+          # just return conn and move on
+          conn
+      end
 
-    conn = conn
-           |> Plug.Conn.fetch_cookies
-           |> Plug.Conn.fetch_query_params
+    conn =
+      conn
+      |> Plug.Conn.fetch_cookies()
+      |> Plug.Conn.fetch_query_params()
 
     context = build_context(conn)
 
@@ -44,7 +46,8 @@ defmodule Airbrakex.Plug do
       context: context,
       session: conn.private.plug_session,
       params: conn.params |> filter_params,
-      environment: build_environment(conn)}
+      environment: build_environment(conn)
+    }
   end
 
   defp filter_params(params) do
@@ -54,20 +57,23 @@ defmodule Airbrakex.Plug do
   @filter_parameters ~w(password)
 
   def do_filter_params(%{__struct__: mod} = struct) when is_atom(mod), do: struct
+
   def do_filter_params(%{} = map) do
-    Enum.into map, %{}, fn {k, v} ->
+    Enum.into(map, %{}, fn {k, v} ->
       if is_binary(k) && String.contains?(k, @filter_parameters) do
         {k, "[FILTERED]"}
       else
         {k, do_filter_params(v)}
       end
-    end
+    end)
   end
-  def do_filter_params([_|_] = list), do: Enum.map(list, &do_filter_params(&1))
+
+  def do_filter_params([_ | _] = list), do: Enum.map(list, &do_filter_params(&1))
   def do_filter_params(other), do: other
 
   defp build_context(%Plug.Conn{} = conn) do
-    {:ok, hostname} =  :inet.gethostname
+    {:ok, hostname} = :inet.gethostname()
+
     %{
       component: conn.request_path,
       action: conn.method,
@@ -75,26 +81,35 @@ defmodule Airbrakex.Plug do
       version: Application.get_env(:airbrakex, :version),
       url: get_url(conn),
       rootDirectory: Application.app_dir(Application.get_env(:airbrakex, :app_name)),
-      userAgent: conn.req_headers |> List.keyfind("user-agent", 0, {"user-agent", "undefined"}) |> elem(1)
-    } |> Map.merge(build_user(conn))
+      userAgent:
+        conn.req_headers |> List.keyfind("user-agent", 0, {"user-agent", "undefined"}) |> elem(1)
+    }
+    |> Map.merge(build_user(conn))
   end
 
-  defp build_user(%{assigns: %{
-                       auth_info: %{
-                         user_id: user_id,
-                         username: username,
-                         name: name,
-                         email: email}}}) do
-    %{userId: user_id,
-      userUsername: username,
-      userName: name,
-      userEmail: email}
+  defp build_user(%{
+         assigns: %{
+           auth_info: %{
+             user_id: user_id,
+             username: username,
+             name: name,
+             email: email
+           }
+         }
+       }) do
+    %{userId: user_id, userUsername: username, userName: name, userEmail: email}
   end
-  defp build_user(%{assigns: %{
-                       auth_info: %{
-                         user_id: user_id}}}) do
+
+  defp build_user(%{
+         assigns: %{
+           auth_info: %{
+             user_id: user_id
+           }
+         }
+       }) do
     %{userId: user_id}
   end
+
   defp build_user(_) do
     %{}
   end

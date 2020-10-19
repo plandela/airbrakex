@@ -11,10 +11,6 @@ defmodule Airbrakex.ExceptionParser do
     }
   end
 
-  def parse(kind, reason) do
-    parse(kind, reason, System.stacktrace())
-  end
-
   # from plug/debugger.ex
   defp info(:error, error),
     do: {inspect(error.__struct__), Exception.message(error)}

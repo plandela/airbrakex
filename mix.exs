@@ -5,7 +5,7 @@ defmodule Airbrakex.Mixfile do
     [
       app: :airbrakex,
       version: "0.0.6",
-      elixir: "~> 1.0",
+      elixir: "~> 1.10",
       description: "Airbrake Elixir Notifier",
       package: package(),
       deps: deps()
@@ -22,14 +22,14 @@ defmodule Airbrakex.Mixfile do
 
   def application do
     [
-      applications: [:idna, :hackney, :httpoison]
+      extra_applications: [:logger]
     ]
   end
 
   defp deps do
     [
       {:httpoison, "~> 1.6"},
-      {:poison, ">= 2.0.0"},
+      {:jason, "~> 1.2"},
       {:plug, ">= 0.13.0 and < 2.0.0"}
     ]
   end
