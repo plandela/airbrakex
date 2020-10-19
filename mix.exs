@@ -29,7 +29,7 @@ defmodule Airbrakex.Mixfile do
   defp deps do
     [
       {:httpoison, "~> 1.6"},
-      {:jason, "~> 1.2"},
+      {:jason, "~> 1.1"},
       {:plug, ">= 0.13.0 and < 2.0.0"}
     ]
   end
