@@ -23,13 +23,6 @@ defmodule Airbrakex.ExceptionParser do
 
   defp stacktrace(stacktrace) do
     Enum.map(stacktrace, fn
-      {module, function, args, []} ->
-        %{
-          file: "unknown",
-          line: 0,
-          function: "#{module |> Utils.strip_elixir_prefix()}.#{function}#{args(args)}"
-        }
-
       {module, function, args, [file: file, line: line_number]} ->
         %{
           file: "(#{module |> Utils.strip_elixir_prefix()}) #{List.to_string(file)}",
@@ -43,6 +36,20 @@ defmodule Airbrakex.ExceptionParser do
           line: 0,
           function: "#{function}#{args(args)}"
         }
+
+      {module, function, args, [error_info: %{module: error_module}]} ->
+        %{
+          file: "#{error_module}",
+          line: 0,
+          function: "#{module |> Utils.strip_elixir_prefix()}.#{function}#{args(args)}"
+        }
+
+      {module, function, args, _} ->
+        %{
+          file: "unknown",
+          line: 0,
+          function: "#{module |> Utils.strip_elixir_prefix()}.#{function}#{args(args)}"
+        }
     end)
   end
 
@@ -51,10 +58,6 @@ defmodule Airbrakex.ExceptionParser do
   end
 
   defp args(args) when is_list(args) do
-    "(#{
-      args
-      |> Enum.map(&inspect(&1))
-      |> Enum.join(", ")
-    })"
+    "(#{args |> Enum.map(&inspect(&1)) |> Enum.join(", ")})"
   end
 end
