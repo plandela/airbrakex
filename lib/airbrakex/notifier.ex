@@ -17,7 +17,7 @@ defmodule Airbrakex.Notifier do
       |> add_error(error)
       |> add_context(Keyword.get(options, :context))
       |> add(:session, Keyword.get(options, :session))
-      |> add(:params, Keyword.get(options, :params))
+      |> add_params(Keyword.get(options, :params))
       |> add(:environment, Keyword.get(options, :environment, %{}))
       |> Jason.encode!()
 
@@ -61,6 +61,29 @@ defmodule Airbrakex.Notifier do
 
   defp add(payload, _key, nil), do: payload
   defp add(payload, key, value), do: Map.put(payload, key, value)
+
+  defp add_params(payload, params) do
+    payload |> Map.put(:params, to_nested_map(params))
+  end
+
+  def to_nested_map(%_{} = str) do
+    to_nested_map(Map.from_struct(str))
+  end
+
+  def to_nested_map(%{} = map) do
+    map
+    |> Enum.into(%{}, fn
+      {k, val} -> {k, to_nested_map(val)}
+    end)
+  end
+
+  def to_nested_map(l) when is_list(l) do
+    l |> Enum.map(fn v -> to_nested_map(v) end)
+  end
+
+  def to_nested_map(v) do
+    v
+  end
 
   defp url(options) do
     project_id = Keyword.get(options, :project_id) || Application.get_env(:airbrakex, :project_id)
