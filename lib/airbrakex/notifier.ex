@@ -47,7 +47,7 @@ defmodule Airbrakex.Notifier do
 
   defp context_with_defaults(context) do
     context
-    |> add_if_missing(:environment, Application.get_env(:airbrakex, :environment, Mix.env()))
+    |> add_if_missing(:environment, Application.get_env(:airbrakex, :environment))
     |> add_if_missing(:language, "Elixir")
   end
 
