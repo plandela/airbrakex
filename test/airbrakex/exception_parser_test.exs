@@ -13,18 +13,18 @@ defmodule Airbrakex.ExceptionParserTest do
       message: "no function clause matching in IO.inspect/3",
       type: "FunctionClauseError",
       backtrace: [
-        %{file: "(IO) lib/io.ex", function: "inspect(\"test\", [], \"\")", line: 431},
+        %{file: "(IO) lib/io.ex", function: "inspect(\"test\", [], \"\")", line: 486},
         %{
           file: "(Airbrakex.ExceptionParserTest) test/airbrakex/exception_parser_test.exs",
           function: "test should parse exception/1",
           line: 7
         },
-        %{file: "(ExUnit.Runner) lib/ex_unit/runner.ex", function: "exec_test/1", line: 502},
-        %{file: "(timer) timer.erl", function: "tc/1", line: 166},
+        %{file: "(ExUnit.Runner) lib/ex_unit/runner.ex", function: "exec_test/2", line: 511},
+        %{file: "(timer) timer.erl", function: "tc/2", line: 595},
         %{
           file: "(ExUnit.Runner) lib/ex_unit/runner.ex",
-          function: "-spawn_test_monitor/4-fun-1-/4",
-          line: 453
+          function: "-spawn_test_monitor/4-fun-1-/6",
+          line: 433
         }
       ]
     }
@@ -54,18 +54,18 @@ defmodule Airbrakex.ExceptionParserTest do
         },
         %{
           file: "(ExUnit.Runner) lib/ex_unit/runner.ex",
-          function: "exec_test/1",
-          line: 502
+          function: "exec_test/2",
+          line: 511
         },
         %{
           file: "(timer) timer.erl",
-          function: "tc/1",
-          line: 166
+          function: "tc/2",
+          line: 595
         },
         %{
           file: "(ExUnit.Runner) lib/ex_unit/runner.ex",
-          function: "-spawn_test_monitor/4-fun-1-/4",
-          line: 453
+          function: "-spawn_test_monitor/4-fun-1-/6",
+          line: 433
         }
       ],
       message: "expected a map, got: nil",

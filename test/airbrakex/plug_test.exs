@@ -1,6 +1,7 @@
 defmodule Airbrakex.PlugTest do
   use ExUnit.Case
-  use Plug.Test
+  import Plug.Conn
+  import Plug.Test
   alias Airbrakex.Plug
 
   defmodule TestEndpoint do
@@ -17,12 +18,19 @@ defmodule Airbrakex.PlugTest do
 
     Application.put_env(:airbrakex, :app_name, :airbrakex)
     metadata = Plug.build_metadata(conn)
-    assert %{context: %{
-                action: "POST", component: "/",
-                url: "example.com/?", userAgent: "undefined", version: nil},
+
+    assert %{
+             context: %{
+               action: "POST",
+               component: "/",
+               url: "example.com/?",
+               userAgent: "undefined",
+               version: nil
+             },
              environment: %{},
              params: %{"username" => "en user"},
-             session: %{"user_id" => 1}} = metadata
+             session: %{"user_id" => 1}
+           } = metadata
   end
 
   test "filters passwords from params" do
@@ -51,6 +59,20 @@ defmodule Airbrakex.PlugTest do
 
     metadata = Plug.build_metadata(conn)
     assert %{params: %{"user" => [%{"password" => "[FILTERED]"}]}} = metadata
+  end
+
+  test "sanitize non-unicode query params" do
+    Application.put_env(:airbrakex, :app_name, :airbrakex)
+
+    conn =
+      conn(:post, "/?" <> <<128>>)
+      |> put_phoenix_privates
+
+    conn = %{conn | query_params: %{}}
+    conn = %{conn | params: %{}}
+
+    metadata = Plug.build_metadata(conn)
+    assert metadata.context.url == "example.com/?�"
   end
 
   defp put_phoenix_privates(conn) do

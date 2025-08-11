@@ -11,7 +11,16 @@ defmodule Airbrakex.Plug do
 
       if :code.is_loaded(Phoenix) do
         # Exceptions raised on non-existant Phoenix routes are ignored
-        defp handle_errors(conn, %{reason: %Phoenix.Router.NoRouteError{}} = ex) do
+        defp handle_errors(conn, %{reason: %Phoenix.Router.NoRouteError{}} = _ex) do
+          nil
+        end
+
+        # Exceptions raised on "not acceptable error" ignored
+        defp handle_errors(conn, %{reason: %Phoenix.NotAcceptableError{}} = _ex) do
+          nil
+        end
+
+        defp handle_errors(conn, %{reason: %Plug.Conn.InvalidQueryError{}} = _ex) do
           nil
         end
       end
@@ -119,6 +128,15 @@ defmodule Airbrakex.Plug do
   end
 
   defp get_url(conn) do
-    conn.private.phoenix_endpoint.url <> conn.request_path <> "?" <> conn.query_string
+    conn.private.phoenix_endpoint.url() <>
+      conn.request_path <> "?" <> to_valid_string(conn.query_string)
+  end
+
+  defp to_valid_string(string) do
+    # query string might contain invalid unicode characters (malicious scripts), we replace with placeholders to avoid crashing reporter...
+    string
+    |> String.chunk(:valid)
+    |> Enum.map(fn str -> (String.valid?(str) && str) || "�" end)
+    |> Enum.join()
   end
 end
