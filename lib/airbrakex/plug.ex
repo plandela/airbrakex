@@ -84,7 +84,7 @@ defmodule Airbrakex.Plug do
     {:ok, hostname} = :inet.gethostname()
 
     %{
-      component: conn.request_path,
+      component: to_valid_string(conn.request_path),
       action: conn.method,
       hostname: hostname |> to_string,
       version: Application.get_env(:airbrakex, :version),
@@ -129,7 +129,7 @@ defmodule Airbrakex.Plug do
 
   defp get_url(conn) do
     conn.private.phoenix_endpoint.url() <>
-      conn.request_path <> "?" <> to_valid_string(conn.query_string)
+      to_valid_string(conn.request_path) <> "?" <> to_valid_string(conn.query_string)
   end
 
   defp to_valid_string(string) do

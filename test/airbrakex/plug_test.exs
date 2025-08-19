@@ -72,7 +72,24 @@ defmodule Airbrakex.PlugTest do
     conn = %{conn | params: %{}}
 
     metadata = Plug.build_metadata(conn)
+    assert _encodeed = metadata |> Jason.encode!()
     assert metadata.context.url == "example.com/?�"
+  end
+
+  test "sanitize non-unicode url" do
+    Application.put_env(:airbrakex, :app_name, :airbrakex)
+
+    conn =
+      conn(:get, "/%c0" <> <<192>>)
+      |> put_phoenix_privates
+
+    conn = %{conn | query_params: %{}}
+    conn = %{conn | params: %{}}
+
+    metadata = Plug.build_metadata(conn)
+    assert _encodeed = metadata |> Jason.encode!()
+    assert metadata.context.url == "example.com/%c0�?"
+    assert metadata.context.component == "/%c0�"
   end
 
   defp put_phoenix_privates(conn) do
