@@ -84,7 +84,8 @@ defmodule Airbrakex.PlugTest do
       |> put_phoenix_privates
 
     conn = %{conn | query_params: %{}}
-    conn = %{conn | params: %{}}
+    conn = %{conn | params: %{"path" => [<<192>>]}}
+    conn = %{conn | path_params: [<<192>>]}
 
     metadata = Plug.build_metadata(conn)
     assert _encodeed = metadata |> Jason.encode!()

@@ -78,6 +78,7 @@ defmodule Airbrakex.Plug do
   end
 
   def do_filter_params([_ | _] = list), do: Enum.map(list, &do_filter_params(&1))
+  def do_filter_params(data) when is_binary(data), do: to_valid_string(data)
   def do_filter_params(other), do: other
 
   defp build_context(%Plug.Conn{} = conn) do
