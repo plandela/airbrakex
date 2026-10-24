@@ -1,8 +1,7 @@
 defmodule Airbrakex.Notifier do
-  use HTTPoison.Base
-
   @request_headers [{"Content-Type", "application/json"}]
   @default_endpoint "http://collect.airbrake.io"
+  @receive_timeout 15_000
 
   @info %{
     name: "Airbrakex",
@@ -21,7 +20,9 @@ defmodule Airbrakex.Notifier do
       |> add(:environment, Keyword.get(options, :environment, %{}))
       |> Jason.encode!()
 
-    case post(url(options), payload, @request_headers) do
+    request = Finch.build(:post, url(options), @request_headers, payload)
+
+    case Finch.request(request, Airbrakex.Finch, receive_timeout: @receive_timeout) do
       {:ok, _} = res -> res
       {:error, error} -> IO.inspect(error)
     end
